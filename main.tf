@@ -157,7 +157,7 @@ resource "aws_instance" "new" {
   subnet_id              = aws_subnet.public_subnet-1.id
   key_name               = "cal.mahi"
   vpc_security_group_ids = [aws_security_group.default.id]
-  user_data              = file("sh.sh")
+
   tags = {
     Name = "Jenkins-Instance_01"
   }
@@ -177,7 +177,7 @@ resource "aws_instance" "slave" {
   subnet_id              = aws_subnet.public_subnet-1.id
   key_name               = "cal.mahi"
   vpc_security_group_ids = [aws_security_group.default.id]
-  user_data              = file("slave.sh")
+
   tags = {
     Name = "Jenkins-Instance-Slave_10"
   }
