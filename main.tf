@@ -13,7 +13,7 @@ resource "aws_vpc" "tfvpc" {
 # Subnets
 # Internet Gateway for Public Subnet
 resource "aws_internet_gateway" "ig" {
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.tfvpc.id
  
  tags = {
     Name = "my-igw"
@@ -23,7 +23,7 @@ resource "aws_internet_gateway" "ig" {
 # Public subnets
 resource "aws_subnet" "public_subnet-1" {
   vpc_id                  = aws_vpc.tfvpc.id
-  cidr_block              = "192.168.1.0/24"
+  cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
 
   tags = {
@@ -32,7 +32,7 @@ resource "aws_subnet" "public_subnet-1" {
 }
 resource "aws_subnet" "public_subnet-2" {
   vpc_id                  = aws_vpc.tfvpc.id
-  cidr_block              = "192.168.2.0/24"
+  cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = true
 
   tags = {
@@ -69,7 +69,7 @@ resource "aws_route_table_association" "publicRT2" {
 # Private subnets
 #resource "aws_subnet" "private_subnet-1" {
  # vpc_id                  = aws_vpc.tfvpc.id
-  #cidr_block              = "192.168.3.0/24"
+  #cidr_block              = "10.10.3.0/24"
   #availability_zone       = "us-west-1"
   #map_public_ip_on_launch = false
 
@@ -79,7 +79,7 @@ resource "aws_route_table_association" "publicRT2" {
 #}
 #resource "aws_subnet" "private_subnet-2" {
   #vpc_id                  = aws_vpc.tfvpc.id
-#  cidr_block              = "192.168.4.0/24"
+#  cidr_block              = "10.0.4.0/24"
  # availability_zone       = "us-west-1"
  # map_public_ip_on_launch = false
 
@@ -130,7 +130,7 @@ resource "aws_security_group" "default" {
   description = "Default SG to alllow traffic from the VPC"
   vpc_id      = aws_vpc.tfvpc.id
   depends_on = [
-    aws_vpc.vpc
+    aws_vpc.tfvpc
   ]
 
   ingress {
