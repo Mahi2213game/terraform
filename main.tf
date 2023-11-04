@@ -1,66 +1,68 @@
+
+  
 # VPC
 resource "aws_vpc" "tfvpc" {
-  cidr_block           = "192.168.0.0/16"
+  cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = "true"
   enable_dns_support   = "true"
 
   tags = {
-    Name = "tfvpc"
+    Name = "testvpc"
   }
 }
 # Subnets
 # Internet Gateway for Public Subnet
-resource "aws_internet_gateway" "tfigw" {
-  vpc_id = aws_vpc.testvpc.id
+resource "aws_internet_gateway" "ig" {
+  vpc_id = aws_vpc.vpc.id
  
  tags = {
-    Name = "tf-igw"
+    Name = "my-igw"
   }
 }
 
 # Public subnets
-resource "aws_subnet" "pub_subnet-1" {
+resource "aws_subnet" "public_subnet-1" {
   vpc_id                  = aws_vpc.tfvpc.id
   cidr_block              = "192.168.1.0/24"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PubSubnet1"
+    Name = "terraformPubSubnet1"
   }
 }
-resource "aws_subnet" "pub_subnet-2" {
+resource "aws_subnet" "public_subnet-2" {
   vpc_id                  = aws_vpc.tfvpc.id
   cidr_block              = "192.168.2.0/24"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PubSubnet2"
+    Name = "terraformPubSubnet2"
   }
 }
 # Routing tables to route traffic for Public Subnet
-resource "aws_route_table" "pub-ro" {
+resource "aws_route_table" "public" {
   vpc_id = aws_vpc.tfvpc.id
 
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.tfigw.id
+    gateway_id = aws_internet_gateway.ig.id
   }
 
   tags = {
-    Name = "public-route"
+    Name = "public-route-table"
   }
 }
 # Route for Internet Gateway
 
 # Subnet association for public route table
 resource "aws_route_table_association" "publicRT1" {
-  subnet_id      = aws_subnet.pub_subnet-1.id
-  route_table_id = aws_route_table.pub-ro.id
+  subnet_id      = aws_subnet.public_subnet-1.id
+  route_table_id = aws_route_table.public.id
 }
 resource "aws_route_table_association" "publicRT2" {
-  subnet_id      = aws_subnet.pub_subnet-2.id
-  route_table_id = aws_route_table.public-ro.id
+  subnet_id      = aws_subnet.public_subnet-2.id
+  route_table_id = aws_route_table.public.id
 }
 
 
@@ -85,7 +87,7 @@ resource "aws_route_table_association" "publicRT2" {
    # Name = "terraform-Private-Subnet-2"
   
 # Elastic-IP (eip) for NAT
-resource "aws_eip" "nat_eip2" {
+resource "aws_eip" "nat_eip" {
 
 }
 # # NAT
@@ -99,7 +101,7 @@ resource "aws_eip" "nat_eip2" {
 
 # Routing tables to route traffic for Private Subnet
 #resource "aws_route_table" "private" {
- # vpc_id = aws_vpc.vpc.id
+ # vpc_id = aws_vpc.tfvpc.id
 
  # tags = {
  #   Name = "private-route-table"
@@ -128,7 +130,7 @@ resource "aws_security_group" "default" {
   description = "Default SG to alllow traffic from the VPC"
   vpc_id      = aws_vpc.tfvpc.id
   depends_on = [
-    aws_vpc.tfvpc
+    aws_vpc.vpc
   ]
 
   ingress {
@@ -164,12 +166,12 @@ resource "aws_instance" "new" {
 # attaching elastic ip to jenkins-master 
 resource "aws_eip_association" "eip_assoc" {
   instance_id   = aws_instance.new.id
-  allocation_id = aws_eip.nat_eip2.id
+  allocation_id = aws_eip.nat_eip.id
 }
 
 
 #instance launcing with jenkins-slave
-resource "aws_instance" "slave_01" {
+resource "aws_instance" "slave" {
   ami                    = "ami-0646513672e4fb341"
   instance_type          = "t3.medium"
   subnet_id              = aws_subnet.public_subnet-1.id
@@ -177,7 +179,6 @@ resource "aws_instance" "slave_01" {
   vpc_security_group_ids = [aws_security_group.default.id]
   user_data              = file("slave.sh")
   tags = {
-    Name = "Jenkins-Instance-Slave_01"
+    Name = "Jenkins-Instance-Slave_10"
   }
 }
-
